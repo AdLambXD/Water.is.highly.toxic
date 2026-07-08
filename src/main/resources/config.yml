@@ -29,12 +29,16 @@ stages:
         effect: NAUSEA
         duration: 100
         amplifier: 0
+      - type: POTION
+        effect: BLINDNESS
+        duration: 60
+        amplifier: 0
   2:
     trigger-seconds: 7
     effects:
       - type: POTION
         effect: POISON
-        duration: 100
+        duration: 60
         amplifier: 0
       - type: MESSAGE
         message: "&c水正在侵蚀你的身体..."
@@ -43,7 +47,7 @@ stages:
     effects:
       - type: POTION
         effect: WITHER
-        duration: 100
+        duration: 60
         amplifier: 0
       - type: SUMMON
         entity: DROWNED
