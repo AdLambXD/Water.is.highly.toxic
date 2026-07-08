@@ -1,0 +1,21 @@
+name: WaterIsHighlyToxic
+version: ${version}
+main: com.adlambxd.watertoxic.WaterToxicPlugin
+api-version: '1.21'
+folia-supported: true
+softdepend: [PlaceholderAPI]
+author: AdLambXD
+
+commands:
+  watertoxic:
+    description: WaterIsHighlyToxic main command
+    aliases: [wt, waterex]
+    permission: watertoxic.admin
+
+permissions:
+  watertoxic.admin:
+    description: Allows use of admin commands
+    default: op
+  watertoxic.bypass:
+    description: Bypass water toxicity effects
+    default: false
