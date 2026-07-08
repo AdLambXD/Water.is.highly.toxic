@@ -5,12 +5,15 @@ import com.adlambxd.watertoxic.config.ConfigManager;
 import com.adlambxd.watertoxic.model.PlayerWaterData;
 import com.adlambxd.watertoxic.punishment.PunishmentExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ExposureTracker {
+
+    private static final int TICKS_PER_SECOND = 20;
 
     private final WaterToxicPlugin plugin;
     private final ConfigManager config;
@@ -101,7 +104,7 @@ public class ExposureTracker {
 
     private void accumulate(Player player, PlayerWaterData data) {
         int interval = config.getCheckInterval();
-        if (config.isRespectWaterBreathing() && player.hasPotionEffect(org.bukkit.potion.PotionEffectType.WATER_BREATHING)) {
+        if (config.isRespectWaterBreathing() && player.hasPotionEffect(PotionEffectType.WATER_BREATHING)) {
             interval = Math.max(1, interval / 2);
         }
         data.setAccumulatedTicks(data.getAccumulatedTicks() + interval);
@@ -121,7 +124,7 @@ public class ExposureTracker {
     }
 
     private void checkStages(Player player, PlayerWaterData data) {
-        int totalSeconds = data.getAccumulatedTicks() / 20;
+        int totalSeconds = data.getAccumulatedTicks() / TICKS_PER_SECOND;
         int newStage = 0;
 
         for (int stage : config.getStageNumbers()) {

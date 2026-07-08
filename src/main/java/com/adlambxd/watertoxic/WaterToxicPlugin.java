@@ -42,14 +42,14 @@ public final class WaterToxicPlugin extends JavaPlugin {
     }
 
     private void registerListeners() {
-        WaterListener waterListener = new WaterListener(this, configManager, exposureTracker);
+        WaterListener waterListener = new WaterListener(configManager, exposureTracker);
         PlayerStateListener stateListener = new PlayerStateListener(configManager, exposureTracker);
         Bukkit.getPluginManager().registerEvents(waterListener, this);
         Bukkit.getPluginManager().registerEvents(stateListener, this);
     }
 
     private void registerCommands() {
-        WaterToxicCommand executor = new WaterToxicCommand(this, configManager, exposureTracker);
+        WaterToxicCommand executor = new WaterToxicCommand(this, exposureTracker);
         getCommand("watertoxic").setExecutor(executor);
         getCommand("watertoxic").setTabCompleter(executor);
     }

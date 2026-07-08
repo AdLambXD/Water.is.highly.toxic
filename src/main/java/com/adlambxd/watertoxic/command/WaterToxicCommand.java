@@ -1,11 +1,11 @@
 package com.adlambxd.watertoxic.command;
 
 import com.adlambxd.watertoxic.WaterToxicPlugin;
-import com.adlambxd.watertoxic.config.ConfigManager;
 import com.adlambxd.watertoxic.model.PlayerWaterData;
 import com.adlambxd.watertoxic.tracker.ExposureTracker;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,12 +18,10 @@ import java.util.List;
 public class WaterToxicCommand implements CommandExecutor, TabCompleter {
 
     private final WaterToxicPlugin plugin;
-    private final ConfigManager config;
     private final ExposureTracker tracker;
 
-    public WaterToxicCommand(WaterToxicPlugin plugin, ConfigManager config, ExposureTracker tracker) {
+    public WaterToxicCommand(WaterToxicPlugin plugin, ExposureTracker tracker) {
         this.plugin = plugin;
-        this.config = config;
         this.tracker = tracker;
     }
 
@@ -37,16 +35,16 @@ public class WaterToxicCommand implements CommandExecutor, TabCompleter {
         switch (args[0].toLowerCase()) {
             case "reload" -> {
                 if (!sender.hasPermission("watertoxic.admin")) {
-                    sender.sendMessage(ChatColor.RED + "You don't have permission.");
+                    sender.sendMessage(Component.text("You don't have permission.", NamedTextColor.RED));
                     return true;
                 }
                 plugin.reloadPlugin();
-                sender.sendMessage(ChatColor.GREEN + "WaterIsHighlyToxic configuration reloaded.");
+                sender.sendMessage(Component.text("WaterIsHighlyToxic configuration reloaded.", NamedTextColor.GREEN));
             }
 
             case "status" -> {
                 if (!sender.hasPermission("watertoxic.admin")) {
-                    sender.sendMessage(ChatColor.RED + "You don't have permission.");
+                    sender.sendMessage(Component.text("You don't have permission.", NamedTextColor.RED));
                     return true;
                 }
                 handleStatus(sender, args);
@@ -63,32 +61,47 @@ public class WaterToxicCommand implements CommandExecutor, TabCompleter {
         if (args.length >= 2) {
             target = Bukkit.getPlayer(args[1]);
             if (target == null) {
-                sender.sendMessage(ChatColor.RED + "Player not found: " + args[1]);
+                sender.sendMessage(Component.text("Player not found: " + args[1], NamedTextColor.RED));
                 return;
             }
         } else if (sender instanceof Player) {
             target = (Player) sender;
         } else {
-            sender.sendMessage(ChatColor.RED + "Usage: /watertoxic status <player>");
+            sender.sendMessage(Component.text("Usage: /watertoxic status <player>", NamedTextColor.RED));
             return;
         }
 
         PlayerWaterData data = tracker.getData(target.getUniqueId());
         if (data == null || data.getAccumulatedTicks() <= 0) {
-            sender.sendMessage(ChatColor.YELLOW + target.getName() + " has no water toxicity data.");
+            sender.sendMessage(Component.text(target.getName() + " has no water toxicity data.", NamedTextColor.YELLOW));
             return;
         }
 
-        sender.sendMessage(ChatColor.GOLD + "=== " + target.getName() + "'s Water Toxicity ===");
-        sender.sendMessage(ChatColor.YELLOW + "In Water: " + (data.isInWater() ? ChatColor.RED + "Yes" : ChatColor.GREEN + "No"));
-        sender.sendMessage(ChatColor.YELLOW + "Accumulated: " + ChatColor.WHITE + String.format("%.1f", data.getAccumulatedSeconds()) + "s");
-        sender.sendMessage(ChatColor.YELLOW + "Stage: " + ChatColor.WHITE + (data.getCurrentStage() > 0 ? data.getCurrentStage() : "None"));
+        sender.sendMessage(Component.text("=== " + target.getName() + "'s Water Toxicity ===", NamedTextColor.GOLD));
+        sender.sendMessage(Component.textOfChildren(
+            Component.text("In Water: ", NamedTextColor.YELLOW),
+            Component.text(data.isInWater() ? "Yes" : "No", data.isInWater() ? NamedTextColor.RED : NamedTextColor.GREEN)
+        ));
+        sender.sendMessage(Component.textOfChildren(
+            Component.text("Accumulated: ", NamedTextColor.YELLOW),
+            Component.text(String.format("%.1f", data.getAccumulatedSeconds()) + "s", NamedTextColor.WHITE)
+        ));
+        sender.sendMessage(Component.textOfChildren(
+            Component.text("Stage: ", NamedTextColor.YELLOW),
+            Component.text(data.getCurrentStage() > 0 ? String.valueOf(data.getCurrentStage()) : "None", NamedTextColor.WHITE)
+        ));
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "=== WaterIsHighlyToxic ===");
-        sender.sendMessage(ChatColor.YELLOW + "/watertoxic reload " + ChatColor.GRAY + "- Reload configuration");
-        sender.sendMessage(ChatColor.YELLOW + "/watertoxic status [player] " + ChatColor.GRAY + "- View toxicity status");
+        sender.sendMessage(Component.text("=== WaterIsHighlyToxic ===", NamedTextColor.GOLD));
+        sender.sendMessage(Component.textOfChildren(
+            Component.text("/watertoxic reload ", NamedTextColor.YELLOW),
+            Component.text("- Reload configuration", NamedTextColor.GRAY)
+        ));
+        sender.sendMessage(Component.textOfChildren(
+            Component.text("/watertoxic status [player] ", NamedTextColor.YELLOW),
+            Component.text("- View toxicity status", NamedTextColor.GRAY)
+        ));
     }
 
     @Override

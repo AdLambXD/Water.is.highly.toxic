@@ -26,13 +26,13 @@ public class WaterExpansion extends PlaceholderExpansion {
     @Override
     @NotNull
     public String getAuthor() {
-        return String.join(", ", plugin.getDescription().getAuthors());
+        return String.join(", ", plugin.getPluginMeta().getAuthors());
     }
 
     @Override
     @NotNull
     public String getVersion() {
-        return plugin.getDescription().getVersion();
+        return plugin.getPluginMeta().getVersion();
     }
 
     @Override

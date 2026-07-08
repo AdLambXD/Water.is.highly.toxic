@@ -4,6 +4,8 @@ import com.adlambxd.watertoxic.WaterToxicPlugin;
 import com.adlambxd.watertoxic.config.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -43,7 +45,7 @@ public class PunishmentExecutor {
 
     private void applyPotion(Player player, Map<?, ?> effect) {
         String effectName = (String) effect.get("effect");
-        PotionEffectType type = PotionEffectType.getByName(effectName);
+        PotionEffectType type = Registry.EFFECT.get(NamespacedKey.minecraft(effectName.toLowerCase()));
         if (type == null) {
             plugin.getLogger().warning("Unknown potion effect: " + effectName);
             return;

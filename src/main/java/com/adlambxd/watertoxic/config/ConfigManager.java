@@ -6,7 +6,10 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ConfigManager {
 
@@ -56,9 +59,8 @@ public class ConfigManager {
                 if (stageSection == null) continue;
 
                 int triggerSeconds = stageSection.getInt("trigger-seconds", 5);
-                List<Map<?, ?>> effects = (List<Map<?, ?>>) stageSection.getList("effects");
-
-                StageConfig stageConfig = new StageConfig(stageNum, triggerSeconds, effects != null ? effects : List.of());
+                List<Map<?, ?>> effects = stageSection.getMapList("effects");
+                StageConfig stageConfig = new StageConfig(stageNum, triggerSeconds, effects);
                 stages.put(stageNum, stageConfig);
             }
         }
@@ -74,7 +76,7 @@ public class ConfigManager {
         return isWorldEnabled(player.getWorld().getName());
     }
 
-    public boolean isWorldEnabled(String worldName) {
+    private boolean isWorldEnabled(String worldName) {
         if (!disabledWorlds.isEmpty() && disabledWorlds.contains(worldName)) return false;
         if (!enabledWorlds.isEmpty() && !enabledWorlds.contains(worldName)) return false;
         return true;
