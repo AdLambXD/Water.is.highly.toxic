@@ -53,12 +53,10 @@ stages:
     effects:
       - type: POTION
         effect: NAUSEA            # 反胃/眩晕（屏幕扭曲）
-        duration: 100             # 持续时间（tick，100 tick = 5 秒）
-        amplifier: 0              # 等级（0 = I 级）
-      - type: POTION
-        effect: BLINDNESS         # 失明（屏幕黑雾）
-        duration: 60              # 3 秒
-        amplifier: 0
+        duration: 300             # 持续时间（tick，100 tick = 5 秒）
+        amplifier: 2              # 等级（0 = I 级）
+      - type: MESSAGE             # 发送聊天消息
+        message: "&c水正在侵蚀你的身体..."
 
   # --- 阶段 2：浸水 7 秒 ---
   # 中毒 + 警告信息
@@ -67,10 +65,15 @@ stages:
     effects:
       - type: POTION
         effect: POISON            # 中毒（持续扣血）
-        duration: 60
-        amplifier: 0
+        duration: 300
+        amplifier: 2
+      - type: POTION
+        effect: NAUSEA
+        duration: 300
+        amplifier: 2
       - type: MESSAGE             # 发送聊天消息
-        message: "&c水正在侵蚀你的身体..."
+        message: "&c你好像有点溺水了..."
+
 
   # --- 阶段 3：浸水 12 秒 ---
   # 凋零 + 召唤溺尸围攻
@@ -79,12 +82,14 @@ stages:
     effects:
       - type: POTION
         effect: WITHER            # 凋零（更快的扣血）
-        duration: 60
-        amplifier: 0
+        duration: 100
+        amplifier: 3
       - type: SUMMON              # 召唤实体
         entity: DROWNED           # 实体类型（Bukkit EntityType 枚举名）
-        amount: 2                 # 数量
+        amount: 4                 # 数量
         radius: 3                 # 在玩家周围多少格内随机生成
+      - type: MESSAGE             # 发送聊天消息
+        message: "&c你好像有点出现幻觉了..."
 
   # --- 阶段 4：浸水 20 秒 ---
   # 扣血 + 雷劈 + 杀戮命令
@@ -94,9 +99,11 @@ stages:
       - type: DAMAGE              # 直接扣血（单位：半心，8.0 = 4 颗心）
         amount: 8.0
       - type: LIGHTNING           # 召唤闪电
-        chance: 0.3               # 触发概率（0.0 ~ 1.0）
+        chance: 0.6               # 触发概率（0.0 ~ 1.0）
       - type: COMMAND             # 执行控制台命令
         command: "kill {player}"  # {player} 会被替换为玩家名
+      - type: MESSAGE             # 发送聊天消息
+        message: "&c你被有毒的水淹死了..."
 
 # ===================================================
 # 效果类型说明

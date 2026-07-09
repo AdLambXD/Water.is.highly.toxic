@@ -8,6 +8,7 @@ import com.adlambxd.watertoxic.placeholder.WaterExpansion;
 import com.adlambxd.watertoxic.punishment.PunishmentExecutor;
 import com.adlambxd.watertoxic.tracker.ExposureTracker;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class WaterToxicPlugin extends JavaPlugin {
@@ -62,8 +63,15 @@ public final class WaterToxicPlugin extends JavaPlugin {
     }
 
     public void reloadPlugin() {
+        exposureTracker.cleanupAll();
         configManager.load();
         getLogger().info("Configuration reloaded");
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (configManager.shouldTrackPlayer(player) && player.isInWater()) {
+                exposureTracker.onPlayerEnterWater(player);
+            }
+        }
     }
 
     public ConfigManager getConfigManager() {
