@@ -1,64 +1,125 @@
-# Interval in ticks between water checks (20 ticks = 1 second)
+# WaterIsHighlyToxic 配置
+# ===================================================
+# 灵感来源于《三体》梗：水是剧毒的
+# 玩家接触水的时间越长，惩罚越严重
+# 离开水后计时会逐渐衰减，重新进水则继续累加
+# ===================================================
+
+# 检测间隔（单位：tick，20 tick = 1 秒）
+# 每隔多少 tick 检查一次玩家是否在水中并推进计时
+# 数值越小检测越精确，但性能开销越大
+# 推荐 10（0.5秒检测一次）
 check-interval: 10
 
-# Decay speed multiplier for water exposure time
-# 1.0 = same speed as accumulation, 2.0 = twice as fast
+# 衰减速度倍率
+# 玩家离开水后，已累计的浸水时间以什么速度减少
+# 1.0 = 和累积速度相同，2.0 = 衰减快一倍，以此类推
+# 设为 0 则离开水后时间不衰减（长时间不清零）
 decay-multiplier: 1.0
 
-# World filters (empty = all worlds)
+# 生效世界过滤器
+# enabled-worlds: 留空 = 所有世界生效；填入世界名列表 = 仅这些世界生效
+# disabled-worlds: 填入世界名列表 = 这些世界不生效
+# 两个同时设置时，先判断 disabled-worlds，再判断 enabled-worlds
 enabled-worlds: []
 disabled-worlds: []
 
-# Whether to respect certain player states
+# 是否跳过特定游戏模式的玩家
 respect-gamemode: true
+
+# 是否跳过骑乘实体的玩家（坐在船上/马上不触发）
 respect-vehicle: true
 
-# Whether water breathing potion effect slows down accumulation
+# 水肺药水是否减缓计时累积
+# true = 有水肺效果的玩家浸水计时累积速度减半
+# 从三体原作设定来说，水本来就是剧毒，水肺不该有用。默认关闭
 respect-water-breathing: false
 
-# Enable detailed console logging
+# 是否在控制台输出详细日志（用于调试）
 verbose-log: false
 
-# Punishment stages, triggered when total water exposure reaches the specified seconds
-# Each stage executes all effects simultaneously when reached
+# ===================================================
+# 惩罚阶段配置
+# 每个阶段按 trigger-seconds 指定的秒数触发
+# 当浸水时间达到 trigger-seconds 时，对应阶段的 effects 会全部执行
+# 同一阶段的 effects 只会执行一次（再次浸水到同一阶段不再重复执行）
+# ===================================================
 stages:
+
+  # --- 阶段 1：浸水 3 秒 ---
+  # 眩晕 + 失明，让你意识到水不对劲
   1:
     trigger-seconds: 3
     effects:
       - type: POTION
-        effect: NAUSEA
-        duration: 100
-        amplifier: 0
+        effect: NAUSEA            # 反胃/眩晕（屏幕扭曲）
+        duration: 100             # 持续时间（tick，100 tick = 5 秒）
+        amplifier: 0              # 等级（0 = I 级）
       - type: POTION
-        effect: BLINDNESS
-        duration: 60
+        effect: BLINDNESS         # 失明（屏幕黑雾）
+        duration: 60              # 3 秒
         amplifier: 0
+
+  # --- 阶段 2：浸水 7 秒 ---
+  # 中毒 + 警告信息
   2:
     trigger-seconds: 7
     effects:
       - type: POTION
-        effect: POISON
+        effect: POISON            # 中毒（持续扣血）
         duration: 60
         amplifier: 0
-      - type: MESSAGE
+      - type: MESSAGE             # 发送聊天消息
         message: "&c水正在侵蚀你的身体..."
+
+  # --- 阶段 3：浸水 12 秒 ---
+  # 凋零 + 召唤溺尸围攻
   3:
     trigger-seconds: 12
     effects:
       - type: POTION
-        effect: WITHER
+        effect: WITHER            # 凋零（更快的扣血）
         duration: 60
         amplifier: 0
-      - type: SUMMON
-        entity: DROWNED
-        amount: 2
-        radius: 3
+      - type: SUMMON              # 召唤实体
+        entity: DROWNED           # 实体类型（Bukkit EntityType 枚举名）
+        amount: 2                 # 数量
+        radius: 3                 # 在玩家周围多少格内随机生成
+
+  # --- 阶段 4：浸水 20 秒 ---
+  # 扣血 + 雷劈 + 杀戮命令
   4:
     trigger-seconds: 20
     effects:
-      - type: DAMAGE
+      - type: DAMAGE              # 直接扣血（单位：半心，8.0 = 4 颗心）
         amount: 8.0
-      - type: LIGHTNING
-        chance: 0.3
-      - type: COMMAND
-        command: "kill {player}"
+      - type: LIGHTNING           # 召唤闪电
+        chance: 0.3               # 触发概率（0.0 ~ 1.0）
+      - type: COMMAND             # 执行控制台命令
+        command: "kill {player}"  # {player} 会被替换为玩家名
+
+# ===================================================
+# 效果类型说明
+# ===================================================
+# type: POTION     - 给予药水效果
+#   effect: <Bukkit 药水效果枚举名>
+#   duration: <持续时间（tick）>
+#   amplifier: <等级（0 = I 级）>
+#
+# type: DAMAGE     - 直接扣血
+#   amount: <伤害值（半心为单位）>
+#
+# type: LIGHTNING  - 召唤闪电
+#   chance: <触发概率（0.0 ~ 1.0）>
+#
+# type: SUMMON     - 召唤实体
+#   entity: <Bukkit 实体类型枚举名>
+#   amount: <数量>
+#   radius: <生成范围半径>
+#
+# type: COMMAND    - 执行控制台命令
+#   command: <命令，用 {player} 代表玩家名>
+#
+# type: MESSAGE    - 发送聊天消息
+#   message: <消息内容，支持 & 颜色代码>
+# ===================================================
